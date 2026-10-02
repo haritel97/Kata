@@ -120,8 +120,8 @@ $("go").onclick=async()=>{
   $("go").disabled=true;$("go").textContent="Sedang menulis...";
   try{
     const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:tab,fields:fields()})});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.error||"Gagal menjana.");
+    const raw=await r.text();let d={};try{d=JSON.parse(raw)}catch(e){}
+    if(!r.ok||!d.text)throw new Error(d.error||(r.status===404?"Fungsi server tidak dijumpai (404). Semak deploy.":"Pelayan tidak membalas dengan betul (kod "+r.status+"). Semak Logs > Functions di Netlify."));
     $("out").style.display="block";$("out").textContent=d.text;$("cp").classList.remove("hide");
     addUse();
   }catch(e){$("err").textContent=e.message||"Gagal menjana. Cuba lagi."}
